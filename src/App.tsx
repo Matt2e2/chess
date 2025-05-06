@@ -1,11 +1,18 @@
-import { useState, type ReactNode } from 'react'
+import { useState, useRef, useEffect, type ReactNode } from 'react'
+import { motion, useDragControls } from 'motion/react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
 type Piece = '♔' | '♕' | '♖' | '♗' | '♘' | '♙' | '♚' | '♛' | '♜' | '♝' | '♞' | '♟' | ' '
 
-function App() {
+let draggedPiece: Piece = ' '
+let draggedPiecePos = [0, 0]
+let hoveredSquare = [0, 0]
+
+export default function App() {
+  const boardRef = useRef(null)
+  
   const [board , setBoard] = useState<Piece[][]>([
     ['♜','♞','♝','♛','♚','♝','♞','♜'],
     ['♟','♟','♟','♟','♟','♟','♟','♟'],
@@ -16,11 +23,12 @@ function App() {
     ['♙','♙','♙','♙','♙','♙','♙','♙'],
     ['♖','♘','♗','♕','♔','♗','♘','♖']
   ])
+  
+  const [colorToMove, setColorToMove] = useState<'white' | 'black'>('white')
 
-  const [hoveredSquare, setHoveredSquare] = useState([0, 0])
-  const [draggedPiece, setDraggedPiece] = useState({enable: false, x: 0, y: 0, pieceText: '♙'})
+  const [boardElements, setBoardElements] = useState<ReactNode[]>()
 
-  function buildBoard(): ReactNode {
+  function buildBoard() {
     let rows: ReactNode[] = []
 
     board.forEach((row, index) => {
@@ -31,37 +39,35 @@ function App() {
       
       row.forEach((piece, index) => {
         const fileIndex = index
-        const fileClass = `file-${fileIndex.toString()}`
 
         squares.push(
-          <div
-            className={`square ${fileClass} ${rowClass}`}
-            onMouseEnter={() => setHoveredSquare([fileIndex, rowIndex])}
-            onClick={() => {
-
-            }}
-          >
-            <span className='pieceText'>{piece}</span>
-          </div>
+          <Square fileIndex={fileIndex} rowIndex={rowIndex} piece={piece}/>
         )
       })
 
       rows.push(<div className={`row ${rowClass}`}>{squares}</div>)
     })
 
-    function handleClick() {
-      
-    }
-
-    return (
-      <div className='board'>
-        {rows}
-        {draggedPiece.enable && (
-          <div className='dragging-piece'><span className='pieceText'>{draggedPiece.pieceText}</span></div>
-        )}
-      </div>
-    )
+    setBoardElements(rows)
   }
+
+  function updateBoard() {
+    setBoard((newBoard) => {
+      if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return newBoard
+
+      newBoard[hoveredSquare[0]][hoveredSquare[1]] = draggedPiece
+      newBoard[draggedPiecePos[0]][draggedPiecePos[1]] = ' '
+
+      console.log(`Updated piece ${draggedPiece} at [${hoveredSquare[0]}, ${hoveredSquare[1]}] from [${draggedPiecePos[0]}, ${draggedPiecePos[1]}]`)
+      setColorToMove((color) => { return color === 'white' ? 'black' : 'white'})
+
+      return newBoard
+    })
+  }
+
+  useEffect(() => {
+    buildBoard()
+  }, [colorToMove])
 
   return (
     <>
@@ -75,11 +81,46 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        {buildBoard()}
+        <motion.div className='board' ref={boardRef} onPointerUpCapture={updateBoard}>
+          {boardElements}
+        </motion.div>
       </div>
-      <p>{hoveredSquare}</p>
     </>
   )
 }
 
-export default App
+function Square(props: any) {
+  const ref = useRef(null)
+
+  const fileClass = `file-${props.fileIndex.toString()}`
+  const rowClass = `row-${props.rowIndex.toString()}`
+
+  const dragControls = useDragControls()
+
+  return (
+    <div
+      className={`square ${fileClass} ${rowClass}`}
+      ref={ref}
+      onPointerEnter={() => hoveredSquare = [props.rowIndex, props.fileIndex]}
+      onPointerDown={
+        (event) => {
+          dragControls.start(event)
+          draggedPiece=props.piece
+          draggedPiecePos=[props.rowIndex, props.fileIndex]
+        }
+      }
+    >
+      <motion.span
+        drag 
+        dragConstraints={ref} 
+        dragControls={dragControls}
+        dragElastic={1} 
+        dragTransition={{bounceStiffness: 200, bounceDamping: 15}}
+        whileDrag={{ scale: 1.3, textShadow: "rgba(0, 0, 0, 0.6) 0px 0px 24px"}}
+        className='pieceText'
+      >
+        {props.piece}
+      </motion.span>
+    </div>
+  )
+}

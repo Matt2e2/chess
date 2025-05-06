@@ -63,11 +63,13 @@
 }
 
 .pieceText {
+  font-family: 'Inter', sans-serif;
   width: 96px;
   line-height: 96px;
   color: #25292B;
   font-size: 96px;
   user-select: none;
+  pointer-events: none;
   text-align: center;
   justify-content: center;
 }
