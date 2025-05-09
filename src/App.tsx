@@ -3,6 +3,7 @@ import { motion, useDragControls } from 'motion/react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { i } from 'motion/react-client'
 
 type Piece = '♔' | '♕' | '♖' | '♗' | '♘' | '♙' | '♚' | '♛' | '♜' | '♝' | '♞' | '♟' | ' '
 const whitePieces = ['♔' , '♕' , '♖' , '♗' , '♘' , '♙']
@@ -71,9 +72,63 @@ export default function App() {
     })
   }
 
+  function checkCollision() {
+    // Return true if piece doesn't collide along the way
+    const from = [draggedPiecePos[0], draggedPiecePos[1]]
+    const to = [hoveredSquare[0], hoveredSquare[1]]
+
+    // File movement
+    if (from[0] === to[0]) {
+      if (from[1] < to[1]) {
+        for (let i = from[1] + 1; i < to[1]; i++) {
+          if (board[from[0]][i] !== ' ') return false
+        }
+      } else {
+        for (let i = to[1] + 1; i < from[1]; i++) {
+          if (board[from[0]][i] !== ' ') return false
+        }
+      }
+    }
+
+    // Rank movement
+    if (from[1] === to[1]) {
+      if (from[0] < to[0]) {
+        for (let i = from[0] + 1; i < to[0]; i++) {
+          if (board[i][from[1]] !== ' ') return false
+        }
+      } else {
+        for (let i = to[0] + 1; i < from[0]; i++) {
+          if (board[i][from[1]] !== ' ') return false
+        }
+      }
+    }
+
+    // Diagonal movement
+    if (Math.abs(from[0] - to[0]) === Math.abs(from[1] - to[1])) {
+      const rowDirection = from[0] < to[0] ? 1 : -1
+      const fileDirection = from[1] < to[1] ? 1 : -1
+
+      let row = from[0] + rowDirection
+      let file = from[1] + fileDirection
+
+      while (row !== to[0] && file !== to[1]) {
+        if (board[row][file] !== ' ') return false
+        row += rowDirection
+        file += fileDirection
+      }
+    }
+    
+    return true
+  }
+
   function checkValidMove() {
+    // Disallow same square moves
     if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return false
+
+    // Don't capture friendly pieces
     let isntFriendlyFire = false
+
+    // Valid move flag
     let isValidPieceMove = false
 
     switch (colorToMove) {
@@ -88,17 +143,17 @@ export default function App() {
 
           case '♕':
             console.log('Checking white queen')
-            isValidPieceMove = (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]) || (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1]))
+            isValidPieceMove = checkCollision() && ((draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]) || (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])))
             break
 
           case '♖':
             console.log('Checking white rook')
-            isValidPieceMove = draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]
+            isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
             break
 
           case '♗':
             console.log('Checking white bishop')
-            isValidPieceMove = Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])
+            isValidPieceMove = checkCollision() && Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])
             break
             
           case '♘':
@@ -112,12 +167,12 @@ export default function App() {
 
             // Normal moves
             if (pawnHasntMoved) {
-              if (draggedPiecePos[1] === hoveredSquare[1] && (draggedPiecePos[0] - hoveredSquare[0] === 1 || draggedPiecePos[0] - hoveredSquare[0] === 2)) {
-                isValidPieceMove = true
+              if (!blackPieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && (draggedPiecePos[0] - hoveredSquare[0] === 1 || draggedPiecePos[0] - hoveredSquare[0] === 2)) {
+                isValidPieceMove = checkCollision()
                 break
               }
             } else {
-              if (draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === 1) {
+              if (!blackPieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === 1) {
                 isValidPieceMove = true
                 break
               }
@@ -161,17 +216,17 @@ export default function App() {
 
           case '♛':
             console.log('Checking black queen')
-            isValidPieceMove = (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]) || (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1]))
+            isValidPieceMove = checkCollision() && ((draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]) || (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])))
             break
 
           case '♜':
             console.log('Checking black rook')
-            isValidPieceMove = draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1]
+            isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
             break
 
           case '♝':
             console.log('Checking black bishop')
-            isValidPieceMove = Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])
+            isValidPieceMove = checkCollision() && Math.abs(draggedPiecePos[0] - hoveredSquare[0]) === Math.abs(draggedPiecePos[1] - hoveredSquare[1])
             break
 
           case '♞':
@@ -185,12 +240,12 @@ export default function App() {
 
             // Normal moves
             if (pawnHasntMoved) {
-              if (draggedPiecePos[1] === hoveredSquare[1] && (draggedPiecePos[0] - hoveredSquare[0] === -1 || draggedPiecePos[0] - hoveredSquare[0] === -2)) {
-                isValidPieceMove = true
+              if (!whitePieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && (draggedPiecePos[0] - hoveredSquare[0] === -1 || draggedPiecePos[0] - hoveredSquare[0] === -2)) {
+                isValidPieceMove = checkCollision()
                 break
               }
             } else {
-              if (draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === -1) {
+              if (!whitePieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === -1) {
                 isValidPieceMove = true
                 break
               }
