@@ -5,6 +5,8 @@ import viteLogo from '/vite.svg'
 import './App.css'
 
 type Piece = '♔' | '♕' | '♖' | '♗' | '♘' | '♙' | '♚' | '♛' | '♜' | '♝' | '♞' | '♟' | ' '
+const whitePieces = ['♔' , '♕' , '♖' , '♗' , '♘' , '♙']
+const blackPieces = ['♚' , '♛' , '♜' , '♝' , '♞' , '♟']
 
 let draggedPiece: Piece = ' '
 let draggedPiecePos = [0, 0]
@@ -52,9 +54,9 @@ export default function App() {
   }
 
   function updateBoard() {
-    setBoard((newBoard) => {
-      if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return newBoard
+    if (!checkValidMove()) return
 
+    setBoard((newBoard) => {
       newBoard[hoveredSquare[0]][hoveredSquare[1]] = draggedPiece
       newBoard[draggedPiecePos[0]][draggedPiecePos[1]] = ' '
 
@@ -63,6 +65,20 @@ export default function App() {
 
       return newBoard
     })
+  }
+
+  function checkValidMove() {
+    if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return false
+
+    switch (colorToMove) {
+      case 'white':
+        if (whitePieces.includes(draggedPiece) && !whitePieces.includes(board[hoveredSquare[0]][hoveredSquare[1]])) return true
+        break
+
+      case 'black':
+        if (blackPieces.includes(draggedPiece) && !blackPieces.includes(board[hoveredSquare[0]][hoveredSquare[1]])) return true
+        break
+    }
   }
 
   useEffect(() => {
