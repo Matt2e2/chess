@@ -11,7 +11,10 @@ const blackPieces = ['♚' , '♛' , '♜' , '♝' , '♞' , '♟']
 let draggedPiece: Piece = ' '
 let draggedPiecePos = [0, 0] // [row, file]
 let hoveredSquare = [0, 0] // [row, file]
-let lastMove = { piece: ' ', from: [0, 0], to: [0, 0] } 
+let lastMove = { piece: ' ', from: [0, 0], to: [0, 0] }
+
+const whiteCastlingRights = {queenRook: true, king: true, kingRook: true}
+const blackCastlingRights = {queenRook: true, king: true, kingRook: true}
 
 export default function App() {
   const boardRef = useRef(null)
@@ -26,10 +29,10 @@ export default function App() {
     ['♙','♙','♙','♙','♙','♙','♙','♙'],
     ['♖','♘','♗','♕','♔','♗','♘','♖']
   ])
-  
-  const [colorToMove, setColorToMove] = useState<'white' | 'black'>('white')
 
   const [boardElements, setBoardElements] = useState<ReactNode[]>()
+  
+  const [colorToMove, setColorToMove] = useState<'white' | 'black'>('white')
 
   function buildBoard() {
     let rows: ReactNode[] = []
@@ -44,11 +47,11 @@ export default function App() {
         const fileIndex = index
 
         squares.push(
-          <Square fileIndex={fileIndex} rowIndex={rowIndex} piece={piece}/>
+          <Square key={`${rowIndex},${fileIndex}`} fileIndex={fileIndex} rowIndex={rowIndex} piece={piece}/>
         )
       })
 
-      rows.push(<div className={`row ${rowClass}`}>{squares}</div>)
+      rows.push(<div key={rowIndex} className={`row ${rowClass}`}>{squares}</div>)
     })
 
     setBoardElements(rows)
@@ -118,6 +121,20 @@ export default function App() {
     return true
   }
 
+  function checkCastleCollission(mode: 'short' | 'long' = 'short', color: 'white' | 'black' = 'white') {
+    const backrank = color === 'white' ? 7 : 0
+
+    if (mode === 'short') {
+      if (board[backrank][5] === ' ' && board[backrank][6] === ' ') return true
+    }
+
+    if (mode === 'long') {
+      if (board[backrank][1] === ' ' && board[backrank][2] === ' ' && board[backrank][3] === ' ') return true
+    }
+    
+    return false
+  }
+
   function checkValidMove() {
     // Disallow same square moves
     if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return false
@@ -135,7 +152,54 @@ export default function App() {
         switch (draggedPiece) {
           case '♔':
             console.log('Checking white king')
-            isValidPieceMove = Math.abs(draggedPiecePos[0] - hoveredSquare[0]) <= 1 && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) <= 1
+            console.log(whiteCastlingRights)
+          
+            // Castling
+            if (draggedPiecePos[0] === hoveredSquare[0] && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 2) {
+
+              // Long castle, queenside
+              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && whiteCastlingRights.queenRook && whiteCastlingRights.king) {
+                if (checkCastleCollission('long', 'white')) {
+                  isValidPieceMove = true
+
+                  setBoard((newBoard) => {
+                    board[7][0] = ' '
+                    board[7][3] = '♖'
+
+                    return newBoard
+                  })
+
+                  whiteCastlingRights.king = whiteCastlingRights.kingRook = whiteCastlingRights.queenRook = false
+
+                  break
+                }
+              }
+              
+              // Short castle, kingside
+              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && whiteCastlingRights.kingRook && whiteCastlingRights.king) {
+                if (checkCastleCollission('short', 'white')) {
+                  isValidPieceMove = true
+
+                  setBoard((newBoard) => {
+                    board[7][7] = ' '
+                    board[7][5] = '♖'
+
+                    return newBoard
+                  })
+
+                  whiteCastlingRights.king = whiteCastlingRights.kingRook = whiteCastlingRights.queenRook = false
+
+                  break
+                }
+              }
+            }
+
+            // Normal king move
+            if (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) <= 1 && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) <= 1 && isntFriendlyFire) {
+              isValidPieceMove = true
+              whiteCastlingRights.king = false
+            }
+
             break
 
           case '♕':
@@ -146,6 +210,12 @@ export default function App() {
           case '♖':
             console.log('Checking white rook')
             isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
+
+            // Disable castling rights for this rook
+            if (isValidPieceMove && isntFriendlyFire) {
+              if (draggedPiecePos[0] === 7 && draggedPiecePos[1] === 0) {whiteCastlingRights.queenRook = false; break}
+              if (draggedPiecePos[0] === 7 && draggedPiecePos[1] === 7) {whiteCastlingRights.kingRook = false; break}
+            }
             break
 
           case '♗':
@@ -208,7 +278,53 @@ export default function App() {
         switch (draggedPiece) {
           case '♚':
             console.log('Checking black king')
-            isValidPieceMove = Math.abs(draggedPiecePos[0] - hoveredSquare[0]) <= 1 && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) <= 1
+            console.log(blackCastlingRights)
+          
+            // Castling
+            if (draggedPiecePos[0] === hoveredSquare[0] && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 2) {
+
+              // Long castle, queenside
+              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && blackCastlingRights.queenRook && blackCastlingRights.king) {
+                if (checkCastleCollission('long', 'black')) {
+                  isValidPieceMove = true
+
+                  setBoard((newBoard) => {
+                    board[0][0] = ' '
+                    board[0][3] = '♜'
+
+                    return newBoard
+                  })
+
+                  blackCastlingRights.king = blackCastlingRights.kingRook = blackCastlingRights.queenRook = false
+
+                  break
+                }
+              }
+              
+              // Short castle, kingside
+              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && blackCastlingRights.kingRook && blackCastlingRights.king) {
+                if (checkCastleCollission('short', 'black')) {
+                  isValidPieceMove = true
+
+                  setBoard((newBoard) => {
+                    board[0][7] = ' '
+                    board[0][5] = '♜'
+
+                    return newBoard
+                  })
+
+                  blackCastlingRights.king = blackCastlingRights.kingRook = blackCastlingRights.queenRook = false
+
+                  break
+                }
+              }
+            }
+
+            // Normal king move
+            if (Math.abs(draggedPiecePos[0] - hoveredSquare[0]) <= 1 && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) <= 1 && isntFriendlyFire) {
+              isValidPieceMove = true
+              blackCastlingRights.king = false
+            }
             break
 
           case '♛':
@@ -219,6 +335,12 @@ export default function App() {
           case '♜':
             console.log('Checking black rook')
             isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
+
+            // Disable castling rights for this rook
+            if (isValidPieceMove && isntFriendlyFire) {
+              if (draggedPiecePos[0] === 0 && draggedPiecePos[1] === 0) {blackCastlingRights.queenRook = false; break}
+              if (draggedPiecePos[0] === 0 && draggedPiecePos[1] === 7) {blackCastlingRights.kingRook = false; break}
+            }
             break
 
           case '♝':
