@@ -301,11 +301,14 @@ export default function App() {
   )
 }
 
-function Square(props: any) {
+function Square(props: { fileIndex: number, rowIndex: number, piece: Piece }) {
   const ref = useRef(null)
+  const pieceClassesWhite = ['k', 'q', 'r', 'b', 'n', 'p']
+  const pieceClassesBlack = ['K', 'Q', 'R', 'B', 'N', 'P']
 
   const fileClass = `file-${props.fileIndex.toString()}`
   const rowClass = `row-${props.rowIndex.toString()}`
+  const pieceClass = whitePieces.includes(props.piece) ? pieceClassesWhite[whitePieces.indexOf(props.piece)] : blackPieces.includes(props.piece) ? pieceClassesBlack[blackPieces.indexOf(props.piece)] : ' '
 
   const dragControls = useDragControls()
 
@@ -322,17 +325,15 @@ function Square(props: any) {
         }
       }
     >
-      <motion.span
+      <motion.div
         drag 
         dragConstraints={ref} 
         dragControls={dragControls}
         dragElastic={1} 
         dragTransition={{bounceStiffness: 200, bounceDamping: 15}}
-        whileDrag={{ scale: 1.3, textShadow: "rgba(0, 0, 0, 0.6) 0px 0px 24px"}}
-        className='pieceText'
-      >
-        {props.piece}
-      </motion.span>
+        whileDrag={{ scale: 1.3, filter: "drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.6))"}}
+        className={pieceClass !== ' ' ? `piece piece-${pieceClass}` : 'piece empty'}
+      />
     </div>
   )
 }
