@@ -60,6 +60,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+.square:has(.piece.empty) {
+  cursor: default;
 }
 
 .piece {
@@ -67,6 +72,7 @@
   height: 96px;
   user-select: none;
   pointer-events: none;
+  filter: drop-shadow(rgba(0, 0, 0, 0) 0px 0px 0px)
 }
 
 .piece.empty {
