@@ -462,7 +462,7 @@ function Square(props: { fileIndex: number, rowIndex: number, piece: Piece }) {
         dragControls={dragControls}
         dragElastic={1} 
         dragTransition={{bounceStiffness: 200, bounceDamping: 15}}
-        whileDrag={{ scale: 1.3, filter: "drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.6))"}}
+        whileDrag={{ scale: 1.3, filter: "drop-shadow(0px 0px 24px rgba(0, 0, 0, 0.6))", zIndex: 1}}
         className={pieceClass !== ' ' ? `piece piece-${pieceClass}` : 'piece empty'}
       />
     </div>
