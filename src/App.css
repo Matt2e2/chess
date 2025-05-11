@@ -112,8 +112,16 @@ h1 {
   transition: .2s background ease, .2s border ease, .2s left ease, .2s right ease, .2s top ease, .2s bottom ease;
 }
 
+.reset-button .icon {
+  transition: .4s rotate ease;
+}
+
 .reset-button:hover {
   color: var(--main);
+}
+
+.reset-button:hover .icon {
+  rotate: 360deg;
 }
 
 .reset-button:hover .reset-button-bg {
