@@ -2,6 +2,9 @@
   width: 100vw;
   height: 100vh;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   max-width: 1512px;
   margin: 0;
   color: var(--black);
@@ -9,11 +12,10 @@
 
 .page-container {
   display: flex;
+  padding: 96px;
   align-items: center;
   gap: 48px;
   align-self: stretch;
-  flex: 1 0 0;
-  padding: 96px;
 }
 
 .info-container {
