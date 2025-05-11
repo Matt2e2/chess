@@ -1,7 +1,5 @@
 import { useState, useRef, useEffect, type ReactNode } from 'react'
 import { motion, useDragControls } from 'motion/react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 type Piece = '♔' | '♕' | '♖' | '♗' | '♘' | '♙' | '♚' | '♛' | '♜' | '♝' | '♞' | '♟' | ' '
@@ -404,22 +402,33 @@ export default function App() {
   }, [colorToMove])
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
+    <div className='page-container'>
+      <div className="info-container">
+        <a href="https://x.com/mattsquare_" target='_blank' className="twitter-link">
+          <svg className='icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.6667 4L13.1404 10.3158M4.66672 20L10.5615 13.2632M13.1404 10.3158L9.30438 4.90023C9.0709 4.5706 8.95416 4.40579 8.80327 4.28671C8.66967 4.18126 8.5171 4.10237 8.35383 4.05429C8.16944 4 7.96747 4 7.56353 4H6.06276C5.39581 4 5.06234 4 4.88254 4.13843C4.726 4.25895 4.63097 4.44271 4.62311 4.64012C4.61407 4.86685 4.80682 5.13897 5.19233 5.68322L10.5615 13.2632M13.1404 10.3158L18.8078 18.3168C19.1933 18.861 19.386 19.1332 19.377 19.3599C19.3691 19.5573 19.2741 19.741 19.1176 19.8616C18.9378 20 18.6043 20 17.9373 20H16.4366C16.0326 20 15.8307 20 15.6463 19.9457C15.483 19.8976 15.3304 19.8187 15.1968 19.7133C15.046 19.5942 14.9292 19.4294 14.6957 19.0998L10.5615 13.2632" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span className='regular-text'>@mattsquare_</span>
         </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <div className="title-container">
+          <div className="piece-to-move">
+            <div className={'circle ' + colorToMove}></div>
+            <span className="subtext">{colorToMove} to move</span>
+          </div>
+          <h1>Chess.</h1>
+          <div className="reset-button" onClick={() => {location.reload()}}>
+            <div className="reset-button-bg"/>
+            <svg className='icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.7834 2.66992C18.2926 3.86202 18.6449 5.11461 18.832 6.39629C18.8808 6.73098 18.617 6.88085 18.3534 6.9818C18.3221 6.9938 18.2907 7.00568 18.2593 7.01746M18.2593 7.01746C16.7936 5.17853 14.5344 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C15.7277 20 18.8599 17.4505 19.748 14M18.2593 7.01746C17.1394 7.43772 15.9725 7.72281 14.7834 7.86607" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span className="regular-text">reset board</span>
+          </div>
+        </div>
       </div>
-      <h1>Chezz</h1>
-      <div className="card">
-        <motion.div className='board' ref={boardRef} onPointerUpCapture={updateBoard}>
-          {boardElements}
-        </motion.div>
-      </div>
-    </>
+      <motion.div className='board' ref={boardRef} onPointerUpCapture={updateBoard}>
+        {boardElements}
+      </motion.div>
+    </div>
   )
 }
 

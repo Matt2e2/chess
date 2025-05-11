@@ -1,39 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="45" height="45">
-  <g style="opacity:1; fill:#000000; fill-opacity:1; fill-rule:evenodd; stroke:#000000; stroke-width:1.5; stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4; stroke-dasharray:none; stroke-opacity:1;" transform="translate(0,0.3)">
-    <path
-      d="M 9,39 L 36,39 L 36,36 L 9,36 L 9,39 z "
-      style="stroke-linecap:butt;" />
-    <path
-      d="M 12.5,32 L 14,29.5 L 31,29.5 L 32.5,32 L 12.5,32 z "
-      style="stroke-linecap:butt;" />
-    <path
-      d="M 12,36 L 12,32 L 33,32 L 33,36 L 12,36 z "
-      style="stroke-linecap:butt;" />
-    <path
-      d="M 14,29.5 L 14,16.5 L 31,16.5 L 31,29.5 L 14,29.5 z "
-      style="stroke-linecap:butt;stroke-linejoin:miter;" />
-    <path
-      d="M 14,16.5 L 11,14 L 34,14 L 31,16.5 L 14,16.5 z "
-      style="stroke-linecap:butt;" />
-    <path
-      d="M 11,14 L 11,9 L 15,9 L 15,11 L 20,11 L 20,9 L 25,9 L 25,11 L 30,11 L 30,9 L 34,9 L 34,14 L 11,14 z "
-      style="stroke-linecap:butt;" />
-    <path
-      d="M 12,35.5 L 33,35.5 L 33,35.5"
-      style="fill:none; stroke:#ffffff; stroke-width:1; stroke-linejoin:miter;" />
-    <path
-      d="M 13,31.5 L 32,31.5"
-      style="fill:none; stroke:#ffffff; stroke-width:1; stroke-linejoin:miter;" />
-    <path
-      d="M 14,29.5 L 31,29.5"
-      style="fill:none; stroke:#ffffff; stroke-width:1; stroke-linejoin:miter;" />
-    <path
-      d="M 14,16.5 L 31,16.5"
-      style="fill:none; stroke:#ffffff; stroke-width:1; stroke-linejoin:miter;" />
-    <path
-      d="M 11,14 L 34,14"
-      style="fill:none; stroke:#ffffff; stroke-width:1; stroke-linejoin:miter;" />
-  </g>
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.8888 13.5556C37.6983 13.5556 38.4573 13.772 39.111 14.1501C39.7647 13.772 40.5237 13.5556 41.3332 13.5556H53.5555C54.365 13.5556 55.124 13.772 55.7777 14.1501C56.4314 13.772 57.1904 13.5556 57.9999 13.5556H69.111C71.5656 13.5556 73.5555 15.5454 73.5555 18V28C73.5555 29.3989 72.8968 30.7162 71.7777 31.5556L64.9197 36.699L66.8616 54.1759C67.3757 58.8029 69.5293 61.1504 72.6666 65.3334C73.2436 66.1027 73.5555 67.0384 73.5555 68V76.8889C73.5555 79.3435 71.5656 81.3334 69.111 81.3334H25.7777C23.3231 81.3334 21.3333 79.3435 21.3333 76.8889V68C21.3333 67.0384 21.6452 66.1027 22.2221 65.3333C25.3594 61.1504 27.513 58.8028 28.0271 54.1759L29.969 36.699L23.111 31.5556C21.9919 30.7162 21.3333 29.3989 21.3333 28V18C21.3333 15.5454 23.3231 13.5556 25.7777 13.5556H36.8888Z" fill="#FFEEE2"/>
+<path d="M25.7778 18H36.8889V24.6667H41.3334V18H53.5556V24.6667H58V18H69.1111V28L60.2223 34.6667L62.4445 54.6667H32.4445L34.6667 34.6667L25.7778 28V18Z" fill="#271F19"/>
+<path d="M32.4445 59.1111H62.4445L69.1111 68V76.8889H25.7778V68L32.4445 59.1111Z" fill="#271F19"/>
 </svg>
