@@ -209,8 +209,8 @@ export default function App() {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
-                    board[7][0] = ' '
-                    board[7][3] = '♖'
+                    newBoard[7][0] = ' '
+                    newBoard[7][3] = '♖'
 
                     return newBoard
                   })
@@ -227,8 +227,8 @@ export default function App() {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
-                    board[7][7] = ' '
-                    board[7][5] = '♖'
+                    newBoard[7][7] = ' '
+                    newBoard[7][5] = '♖'
 
                     return newBoard
                   })
@@ -344,8 +344,8 @@ export default function App() {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
-                    board[0][0] = ' '
-                    board[0][3] = '♜'
+                    newBoard[0][0] = ' '
+                    newBoard[0][3] = '♜'
 
                     return newBoard
                   })
@@ -362,8 +362,8 @@ export default function App() {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
-                    board[0][7] = ' '
-                    board[0][5] = '♜'
+                    newBoard[0][7] = ' '
+                    newBoard[0][5] = '♜'
 
                     return newBoard
                   })
