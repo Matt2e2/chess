@@ -42,11 +42,10 @@
 h1 {
   align-self: stretch;
   color: var(--black);
-  font-family: "Advercase Demo";
+  font-family: "Advercase";
   font-size: 128px;
   font-style: normal;
   font-weight: 400;
-  line-height: normal;
 }
 
 .regular-text, .subtext {
