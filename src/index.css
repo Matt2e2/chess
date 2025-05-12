@@ -8,6 +8,7 @@
 :root {
   --main: #FFEEE2;
   --black: #271F19;
+  --black-10: rgba(39, 31, 25, .1);
   --accent: #3B7CF6;
 
   line-height: 1.5;

@@ -245,3 +245,39 @@ h1 {
   background: url('./assets/squarewh.svg') no-repeat center;
   background-size: contain;
 }
+
+.promotion-overlay {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black-10);
+}
+
+.promotion-cancel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.promotion-select {
+  position: relative;
+  display: flex;
+  background: var(--main);
+  border: 2px solid var(--black);
+  border-radius: 16px;
+  padding: 16px;
+  gap: 16px;
+}
+
+.promotion-select .piece {
+  pointer-events: all;
+  width: 72px;
+  height: 72px;
+}

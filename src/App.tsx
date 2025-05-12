@@ -3,8 +3,8 @@ import { motion, useDragControls } from 'motion/react'
 import './App.css'
 
 type Piece = '♔' | '♕' | '♖' | '♗' | '♘' | '♙' | '♚' | '♛' | '♜' | '♝' | '♞' | '♟' | ' '
-const whitePieces = ['♔' , '♕' , '♖' , '♗' , '♘' , '♙']
-const blackPieces = ['♚' , '♛' , '♜' , '♝' , '♞' , '♟']
+const whitePieces: Piece[] = ['♔' , '♕' , '♖' , '♗' , '♘' , '♙']
+const blackPieces: Piece[] = ['♚' , '♛' , '♜' , '♝' , '♞' , '♟']
 
 let draggedPiece: Piece = ' '
 let draggedPiecePos = [0, 0] // [row, file]
@@ -13,6 +13,8 @@ let lastMove = { piece: ' ', from: [0, 0], to: [0, 0] }
 
 const whiteCastlingRights = {queenRook: true, king: true, kingRook: true}
 const blackCastlingRights = {queenRook: true, king: true, kingRook: true}
+
+
 
 export default function App() {
   const boardRef = useRef(null)
@@ -32,6 +34,10 @@ export default function App() {
   
   const [colorToMove, setColorToMove] = useState<'white' | 'black'>('white')
 
+  const [promoting, setPromoting] = useState({state: false, intendedSquare: [0, 0], originSquare: [0, 0]})
+
+  // Build board
+  // Sets the board elements from board state of 8 rows of 8 squares
   function buildBoard() {
     let rows: ReactNode[] = []
 
@@ -55,9 +61,10 @@ export default function App() {
     setBoardElements(rows)
   }
 
-  function updateBoard() {
-    if (!checkValidMove()) return
 
+  // Update board
+  // Update board state on valid move
+  function updateBoard() {
     setBoard((newBoard) => {
       newBoard[hoveredSquare[0]][hoveredSquare[1]] = draggedPiece
       newBoard[draggedPiecePos[0]][draggedPiecePos[1]] = ' '
@@ -72,6 +79,8 @@ export default function App() {
     })
   }
 
+  // Check collision
+  // Check for piece collide on files, ranks and diagonals
   function checkCollision() {
     // Return true if piece doesn't collide along the way
 
@@ -119,7 +128,9 @@ export default function App() {
     return true
   }
 
-  function checkCastleCollission(mode: 'short' | 'long' = 'short', color: 'white' | 'black' = 'white') {
+  // Check castle collision
+  // Special friendly piece collision checking for castling
+  function checkCastleCollision(mode: 'short' | 'long' = 'short', color: 'white' | 'black' = 'white') {
     const backrank = color === 'white' ? 7 : 0
 
     if (mode === 'short') {
@@ -133,15 +144,52 @@ export default function App() {
     return false
   }
 
+  // Handle promote click
+  // Clicking on the overlay or pieces in the promotion selector
+  function handlePromoteClick(piece: number | null) {
+    if (!promoting.state) return
+
+    const promotionPieces = colorToMove === 'white' ? whitePieces.slice(1, -1) : blackPieces.slice(1, -1)
+
+    if (piece === null) {
+      setPromoting({state: false, intendedSquare: [0, 0], originSquare: [0, 0]})
+      console.log('Cancelled promotion for ' + colorToMove)
+      return
+    }
+
+    if ([0, 1, 2, 3].includes(piece)) {
+      setBoard((newBoard) => {
+        newBoard[promoting.intendedSquare[0]][promoting.intendedSquare[1]] = promotionPieces[piece]
+        newBoard[promoting.originSquare[0]][promoting.originSquare[1]] = ' '
+
+        lastMove = { piece: draggedPiece, from: [draggedPiecePos[0], draggedPiecePos[1]], to: [hoveredSquare[0], hoveredSquare[1]] }
+        console.log(`Promoted ${promotionPieces[piece]} from ${colorToMove} pawn`)
+
+        setColorToMove((color) => { return color === 'white' ? 'black' : 'white'})
+        setPromoting({state: false, intendedSquare: [0, 0], originSquare: [0, 0]})
+
+        return newBoard
+      })
+    }
+  }
+
+  // Check valid move
+  // Check for legal move based on piece disallowing friendly fire or out of turn moves
   function checkValidMove() {
     // Disallow same square moves
-    if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return false
+    if (hoveredSquare[0] === draggedPiecePos[0] && hoveredSquare[1] === draggedPiecePos[1]) return
+
+    // Color to Move rule
+    if (colorToMove === 'white' ? !whitePieces.includes(draggedPiece) : !blackPieces.includes(draggedPiece)) return
 
     // Don't capture friendly pieces
     let isntFriendlyFire = false
 
     // Valid move flag
     let isValidPieceMove = false
+
+    // Promoting
+    let isPromoting = false
 
     switch (colorToMove) {
       case 'white':
@@ -157,7 +205,7 @@ export default function App() {
 
               // Long castle, queenside
               if (draggedPiecePos[1] - hoveredSquare[1] === 2 && whiteCastlingRights.queenRook && whiteCastlingRights.king) {
-                if (checkCastleCollission('long', 'white')) {
+                if (checkCastleCollision('long', 'white')) {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
@@ -175,7 +223,7 @@ export default function App() {
               
               // Short castle, kingside
               if (draggedPiecePos[1] - hoveredSquare[1] === -2 && whiteCastlingRights.kingRook && whiteCastlingRights.king) {
-                if (checkCastleCollission('short', 'white')) {
+                if (checkCastleCollision('short', 'white')) {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
@@ -228,6 +276,7 @@ export default function App() {
 
           case '♙':
             console.log('Checking white pawn')
+            const canPromote = hoveredSquare[0] === 0
             const pawnHasntMoved = draggedPiecePos[0] === 6 // Pawn start rank
 
             // Normal moves
@@ -238,6 +287,11 @@ export default function App() {
               }
             } else {
               if (!blackPieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === 1) {
+                if (canPromote) {
+                  isPromoting = true
+                  break
+                }
+
                 isValidPieceMove = true
                 break
               }
@@ -246,6 +300,11 @@ export default function App() {
             // Captures
             if (blackPieces.includes(board[hoveredSquare[0]][hoveredSquare[1]])) {
               if (Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 1 && draggedPiecePos[0] - hoveredSquare[0] === 1) {
+                if (canPromote) {
+                  isPromoting = true
+                  break
+                }
+
                 isValidPieceMove = true
                 break
               }
@@ -266,8 +325,6 @@ export default function App() {
             }
             break
         }
-
-        if (whitePieces.includes(draggedPiece) && isntFriendlyFire && isValidPieceMove) return true
         break
 
       case 'black':
@@ -283,7 +340,7 @@ export default function App() {
 
               // Long castle, queenside
               if (draggedPiecePos[1] - hoveredSquare[1] === 2 && blackCastlingRights.queenRook && blackCastlingRights.king) {
-                if (checkCastleCollission('long', 'black')) {
+                if (checkCastleCollision('long', 'black')) {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
@@ -301,7 +358,7 @@ export default function App() {
               
               // Short castle, kingside
               if (draggedPiecePos[1] - hoveredSquare[1] === -2 && blackCastlingRights.kingRook && blackCastlingRights.king) {
-                if (checkCastleCollission('short', 'black')) {
+                if (checkCastleCollision('short', 'black')) {
                   isValidPieceMove = true
 
                   setBoard((newBoard) => {
@@ -353,6 +410,7 @@ export default function App() {
 
           case '♟':
             console.log('Checking black pawn')
+            const canPromote = hoveredSquare[0] === 7
             const pawnHasntMoved = draggedPiecePos[0] === 1 // Pawn start rank
 
             // Normal moves
@@ -363,6 +421,11 @@ export default function App() {
               }
             } else {
               if (!whitePieces.includes(board[hoveredSquare[0]][hoveredSquare[1]]) && draggedPiecePos[1] === hoveredSquare[1] && draggedPiecePos[0] - hoveredSquare[0] === -1) {
+                if (canPromote) {
+                  isPromoting = true
+                  break
+                }
+
                 isValidPieceMove = true
                 break
               }
@@ -371,6 +434,11 @@ export default function App() {
             // Captures
             if (whitePieces.includes(board[hoveredSquare[0]][hoveredSquare[1]])) {
               if (Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 1 && draggedPiecePos[0] - hoveredSquare[0] === -1) {
+                if (canPromote) {
+                  isPromoting = true
+                  break
+                }
+
                 isValidPieceMove = true
                 break
               }
@@ -391,22 +459,29 @@ export default function App() {
             }
             break
         }
-          
-        if (blackPieces.includes(draggedPiece) && isntFriendlyFire && isValidPieceMove) return true
         break
-    }
+      }
+
+      if (isPromoting) {
+        setPromoting({state: true, intendedSquare: hoveredSquare, originSquare: draggedPiecePos})
+        return
+      }
+      
+      if (isntFriendlyFire && isValidPieceMove) updateBoard()
   }
 
   useEffect(() => {
     buildBoard()
   }, [colorToMove])
 
+  const promotingPieceClasses = colorToMove === 'white' ? ['q', 'r', 'b', 'n'] : ['Q', 'R', 'B', 'N']
+
   return (
     <div className='page-container'>
       <div className="info-container">
         <a href="https://x.com/mattsquare_" target='_blank' className="twitter-link">
           <svg className='icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18.6667 4L13.1404 10.3158M4.66672 20L10.5615 13.2632M13.1404 10.3158L9.30438 4.90023C9.0709 4.5706 8.95416 4.40579 8.80327 4.28671C8.66967 4.18126 8.5171 4.10237 8.35383 4.05429C8.16944 4 7.96747 4 7.56353 4H6.06276C5.39581 4 5.06234 4 4.88254 4.13843C4.726 4.25895 4.63097 4.44271 4.62311 4.64012C4.61407 4.86685 4.80682 5.13897 5.19233 5.68322L10.5615 13.2632M13.1404 10.3158L18.8078 18.3168C19.1933 18.861 19.386 19.1332 19.377 19.3599C19.3691 19.5573 19.2741 19.741 19.1176 19.8616C18.9378 20 18.6043 20 17.9373 20H16.4366C16.0326 20 15.8307 20 15.6463 19.9457C15.483 19.8976 15.3304 19.8187 15.1968 19.7133C15.046 19.5942 14.9292 19.4294 14.6957 19.0998L10.5615 13.2632" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18.6667 4L13.1404 10.3158M4.66672 20L10.5615 13.2632M13.1404 10.3158L9.30438 4.90023C9.0709 4.5706 8.95416 4.40579 8.80327 4.28671C8.66967 4.18126 8.5171 4.10237 8.35383 4.05429C8.16944 4 7.96747 4 7.56353 4H6.06276C5.39581 4 5.06234 4 4.88254 4.13843C4.726 4.25895 4.63097 4.44271 4.62311 4.64012C4.61407 4.86685 4.80682 5.13897 5.19233 5.68322L10.5615 13.2632M13.1404 10.3158L18.8078 18.3168C19.1933 18.861 19.386 19.1332 19.377 19.3599C19.3691 19.5573 19.2741 19.741 19.1176 19.8616C18.9378 20 18.6043 20 17.9373 20H16.4366C16.0326 20 15.8307 20 15.6463 19.9457C15.483 19.8976 15.3304 19.8187 15.1968 19.7133C15.046 19.5942 14.9292 19.4294 14.6957 19.0998L10.5615 13.2632" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <span className='regular-text'>@mattsquare_</span>
         </a>
@@ -419,18 +494,31 @@ export default function App() {
           <div className="reset-button" onClick={() => {location.reload()}}>
             <div className="reset-button-bg"/>
             <svg className='icon' width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M17.7834 2.66992C18.2926 3.86202 18.6449 5.11461 18.832 6.39629C18.8808 6.73098 18.617 6.88085 18.3534 6.9818C18.3221 6.9938 18.2907 7.00568 18.2593 7.01746M18.2593 7.01746C16.7936 5.17853 14.5344 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C15.7277 20 18.8599 17.4505 19.748 14M18.2593 7.01746C17.1394 7.43772 15.9725 7.72281 14.7834 7.86607" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M17.7834 2.66992C18.2926 3.86202 18.6449 5.11461 18.832 6.39629C18.8808 6.73098 18.617 6.88085 18.3534 6.9818C18.3221 6.9938 18.2907 7.00568 18.2593 7.01746M18.2593 7.01746C16.7936 5.17853 14.5344 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C15.7277 20 18.8599 17.4505 19.748 14M18.2593 7.01746C17.1394 7.43772 15.9725 7.72281 14.7834 7.86607" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <span className="regular-text">reset board</span>
           </div>
         </div>
       </div>
-      <motion.div className='board' ref={boardRef} onPointerUpCapture={updateBoard}>
+      <motion.div className='board' ref={boardRef} onPointerUpCapture={checkValidMove}>
         {boardElements}
+        {promoting.state && (
+          <div className='promotion-overlay'>
+            <div className='promotion-cancel' onClick={() => {handlePromoteClick(null)}}/>
+            <div className="promotion-select">
+              <motion.div className={`piece piece-${promotingPieceClasses[0]}`} onClick={() => {handlePromoteClick(0)}} whileHover={{scale: 1.2}}/>
+              <motion.div className={`piece piece-${promotingPieceClasses[1]}`} onClick={() => {handlePromoteClick(1)}} whileHover={{scale: 1.2}}/>
+              <motion.div className={`piece piece-${promotingPieceClasses[2]}`} onClick={() => {handlePromoteClick(2)}} whileHover={{scale: 1.2}}/>
+              <motion.div className={`piece piece-${promotingPieceClasses[3]}`} onClick={() => {handlePromoteClick(3)}} whileHover={{scale: 1.2}}/>
+            </div>
+          </div>
+        )}
       </motion.div>
     </div>
   )
 }
+
+
 
 function Square(props: { fileIndex: number, rowIndex: number, piece: Piece }) {
   const ref = useRef(null)
