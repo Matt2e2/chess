@@ -204,7 +204,7 @@ export default function App() {
             if (draggedPiecePos[0] === hoveredSquare[0] && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 2) {
 
               // Long castle, queenside
-              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && whiteCastlingRights.queenRook && whiteCastlingRights.king) {
+              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && board[7][0] === '♖' && whiteCastlingRights.queenRook && whiteCastlingRights.king) {
                 if (checkCastleCollision('long', 'white')) {
                   isValidPieceMove = true
 
@@ -222,7 +222,7 @@ export default function App() {
               }
               
               // Short castle, kingside
-              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && whiteCastlingRights.kingRook && whiteCastlingRights.king) {
+              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && board[7][7] === '♖' && whiteCastlingRights.kingRook && whiteCastlingRights.king) {
                 if (checkCastleCollision('short', 'white')) {
                   isValidPieceMove = true
 
@@ -257,10 +257,10 @@ export default function App() {
             console.log('Checking white rook')
             isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
 
-            // Disable castling rights for this rook
+            // Disable castling rights for out of place rooks
             if (isValidPieceMove && isntFriendlyFire) {
-              if (draggedPiecePos[0] === 7 && draggedPiecePos[1] === 0) {whiteCastlingRights.queenRook = false; break}
-              if (draggedPiecePos[0] === 7 && draggedPiecePos[1] === 7) {whiteCastlingRights.kingRook = false; break}
+              if (board[7][0] !== '♖') {whiteCastlingRights.queenRook = false; break}
+              if (board[7][7] !== '♖') {whiteCastlingRights.kingRook = false; break}
             }
             break
 
@@ -339,7 +339,7 @@ export default function App() {
             if (draggedPiecePos[0] === hoveredSquare[0] && Math.abs(draggedPiecePos[1] - hoveredSquare[1]) === 2) {
 
               // Long castle, queenside
-              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && blackCastlingRights.queenRook && blackCastlingRights.king) {
+              if (draggedPiecePos[1] - hoveredSquare[1] === 2 && board[0][0] === '♜' && blackCastlingRights.queenRook && blackCastlingRights.king) {
                 if (checkCastleCollision('long', 'black')) {
                   isValidPieceMove = true
 
@@ -357,7 +357,7 @@ export default function App() {
               }
               
               // Short castle, kingside
-              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && blackCastlingRights.kingRook && blackCastlingRights.king) {
+              if (draggedPiecePos[1] - hoveredSquare[1] === -2 && board[0][7] === '♜' && blackCastlingRights.kingRook && blackCastlingRights.king) {
                 if (checkCastleCollision('short', 'black')) {
                   isValidPieceMove = true
 
@@ -391,10 +391,10 @@ export default function App() {
             console.log('Checking black rook')
             isValidPieceMove = checkCollision() && (draggedPiecePos[0] === hoveredSquare[0] || draggedPiecePos[1] === hoveredSquare[1])
 
-            // Disable castling rights for this rook
+            // Disable castling rights for out of place rooks
             if (isValidPieceMove && isntFriendlyFire) {
-              if (draggedPiecePos[0] === 0 && draggedPiecePos[1] === 0) {blackCastlingRights.queenRook = false; break}
-              if (draggedPiecePos[0] === 0 && draggedPiecePos[1] === 7) {blackCastlingRights.kingRook = false; break}
+              if (board[0][0] !== '♜') {blackCastlingRights.queenRook = false; break}
+              if (board[0][7] !== '♜') {blackCastlingRights.kingRook = false; break}
             }
             break
 
